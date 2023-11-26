@@ -1,6 +1,6 @@
 import javax.swing.JFrame
 
-class Window: JFrame("Path finding") {
+class Window: JFrame("Path Finding") {
     init {
         this.add(AppPanel());
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);

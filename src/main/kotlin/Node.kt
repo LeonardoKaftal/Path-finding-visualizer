@@ -1,4 +1,3 @@
-class Node(val x: Int, val y: Int) {
-    val size = 40;
-    val walkable = true;
+class Node (val x: Int, val y: Int, val isWalkable: Boolean, val nodeType : NodeType) {
+    
 }
