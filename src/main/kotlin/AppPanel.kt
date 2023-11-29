@@ -86,17 +86,15 @@ class AppPanel : JPanel(), MouseListener, MouseMotionListener {
 
     override fun mousePressed(e: MouseEvent) {
         val xMouseGridPos = e.x / NODE_SIZE
-        val yMouseGridPos = e.y / NODE_SIZE
+        val yMouseGridPos = (e.y - GAP) / NODE_SIZE
 
-
-        if (xMouseGridPos == targetNodeIndexCordinate[0] && yMouseGridPos == targetNodeIndexCordinate[1]) {
-            grid[yMouseGridPos][xMouseGridPos]?.nodeType = NodeType.NODE
+        if (xMouseGridPos == targetNodeIndexCordinate[1] && yMouseGridPos == targetNodeIndexCordinate[0]) {
             isChangingTargetNodePosition = true
-        } else if (xMouseGridPos == startNodeIndexCordinate[0] && yMouseGridPos == startNodeIndexCordinate[1])  {
-            grid[yMouseGridPos][xMouseGridPos]?.nodeType = NodeType.NODE
+        } else if (xMouseGridPos == startNodeIndexCordinate[1] && yMouseGridPos == startNodeIndexCordinate[0])  {
             isChangingStartNodePosition = true
         }
     }
+
 
     override fun mouseReleased(e: MouseEvent?) {
         isChangingTargetNodePosition = false
@@ -111,9 +109,41 @@ class AppPanel : JPanel(), MouseListener, MouseMotionListener {
         // implement as needed
     }
 
-    override fun mouseDragged(e: MouseEvent?) {
+    override fun mouseDragged(e: MouseEvent) {
+        val xMouseGridPos = e.x / NODE_SIZE
+        val yMouseGridPos = (e.y - GAP) / NODE_SIZE
 
+        if (xMouseGridPos < NODE_PER_ROW && yMouseGridPos < TOTAL_ROW && xMouseGridPos >= 0 && yMouseGridPos >= 0) {
+            when {
+                isChangingTargetNodePosition -> {
+                    if (xMouseGridPos != startNodeIndexCordinate[1] || yMouseGridPos != startNodeIndexCordinate[0]) {
+                        val prevTargetNode = grid[targetNodeIndexCordinate[0]][targetNodeIndexCordinate[1]]
+                        prevTargetNode!!.nodeType = NodeType.NODE
+
+                        targetNodeIndexCordinate[1] = xMouseGridPos
+                        targetNodeIndexCordinate[0] = yMouseGridPos
+
+                        grid[yMouseGridPos][xMouseGridPos]!!.nodeType = NodeType.TARGET
+                        repaint()
+                    }
+                }
+                isChangingStartNodePosition -> {
+                    if (xMouseGridPos != targetNodeIndexCordinate[1] || yMouseGridPos != targetNodeIndexCordinate[0]) {
+                        val prevStartNode = grid[startNodeIndexCordinate[0]][startNodeIndexCordinate[1]]
+                        prevStartNode!!.nodeType = NodeType.NODE
+
+                        startNodeIndexCordinate[1] = xMouseGridPos
+                        startNodeIndexCordinate[0] = yMouseGridPos
+
+                        grid[yMouseGridPos][xMouseGridPos]!!.nodeType = NodeType.START
+                        repaint()
+                    }
+                }
+            }
+        }
     }
+
+
 
     override fun mouseMoved(e: MouseEvent?) {
     }
