@@ -6,6 +6,7 @@ import java.awt.event.ActionListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
+import java.util.HashSet
 import javax.swing.JButton
 import javax.swing.JPanel
 import kotlin.random.Random
@@ -17,13 +18,16 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
     private val NODE_SIZE = WIDTH / NODE_PER_ROW
     private val TOTAL_ROW = 40
     private val GAP = NODE_SIZE * 5
-    private val grid = Array(TOTAL_ROW) { Array<Node>(NODE_PER_ROW) { Node(0,0,false,NodeType.NODE) } }
+    private val grid = Array(TOTAL_ROW) { Array(NODE_PER_ROW) { Node(0,0,false,NodeType.NODE) } }
     private val clearButton = JButton("Clear")
     private val startButton = JButton("Start")
     private var startNodeIndexCordinate: Array<Int> = arrayOf(Random.nextInt(TOTAL_ROW), Random.nextInt(NODE_PER_ROW))
     private var targetNodeIndexCordinate: Array<Int> = arrayOf(Random.nextInt(TOTAL_ROW), Random.nextInt(NODE_PER_ROW))
     private var isChangingStartNodePosition: Boolean = false
     private var isChangingTargetNodePosition: Boolean = false
+    // path to the target
+    private var closedNode: HashSet<Node>?  = null
+    private var isSearchingForPath = false
 
     init {
         this.preferredSize = Dimension(WIDTH, HEIGHT)
@@ -31,11 +35,8 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
         addMouseListener(this)
         addMouseMotionListener(this)
         startButton.addActionListener {
-            val startNode: Node = grid[startNodeIndexCordinate[0] + 1][startNodeIndexCordinate[1] + 4]
-            val targetNode: Node = grid[targetNodeIndexCordinate[0]][targetNodeIndexCordinate[1]]
-
-
-            println(startNode.getFCost(grid[startNodeIndexCordinate[0]][startNodeIndexCordinate[1]], targetNode))
+            isSearchingForPath = true
+            repaint()
         }
         add(clearButton)
         add(startButton)
@@ -45,6 +46,7 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
             startNodeIndexCordinate = arrayOf(Random.nextInt(TOTAL_ROW), Random.nextInt(NODE_PER_ROW))
         }
     }
+
 
 
     private fun generateGrid() {
@@ -86,6 +88,16 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
                 }
             }
         }
+
+        if (isSearchingForPath) {
+            val aStar = AStar(grid,startNodeIndexCordinate,targetNodeIndexCordinate,NODE_SIZE)
+            closedNode = aStar.getBestPath()
+
+            g.color = Color.YELLOW
+            closedNode!!.forEach { node ->  g.fillRect(node.x,node.y,NODE_SIZE,NODE_SIZE)}
+            isSearchingForPath = false
+        }
+
     }
 
     override fun mousePressed(e: MouseEvent) {
