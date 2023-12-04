@@ -7,15 +7,18 @@ class Node(
     val isWalkable: Boolean,
     var nodeType: NodeType
 ) {
-     var gCost: Int = 0
-     var hCost: Int = 0
 
     fun getFCost(startingNode: Node, targetNode: Node): Int {
         return calculateGCost(startingNode) + calculateHCost(targetNode)
     }
 
-    private fun calculateGCost(parentNode: Node): Int {
-       return parentNode.gCost + calculateMoveCost(parentNode)
+    private fun calculateGCost(startingNode: Node): Int {
+        val horizontalDistance = abs(x - startingNode.x)
+        val verticalDistance = abs(y - startingNode.y)
+
+        val diagonalValue = 14
+        val verticalValue = 10
+        return diagonalValue * min(horizontalDistance, verticalDistance) + verticalValue * abs(horizontalDistance - verticalDistance)
     }
 
     private fun calculateHCost(targetNode: Node): Int {
@@ -28,14 +31,5 @@ class Node(
         return diagonalValue * min(horizontalDistance, verticalDistance) + verticalValue * abs(horizontalDistance - verticalDistance)
     }
 
-
-
-    private fun calculateMoveCost(otherNode: Node): Int {
-        return if (x != otherNode.x && y != otherNode.y) {
-            14
-        } else {
-            10
-        }
-    }
 
 }

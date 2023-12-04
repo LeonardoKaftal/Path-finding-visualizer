@@ -31,7 +31,7 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
         addMouseListener(this)
         addMouseMotionListener(this)
         startButton.addActionListener {
-            val startNode: Node = grid[startNodeIndexCordinate[0]][startNodeIndexCordinate[1] + 1]
+            val startNode: Node = grid[startNodeIndexCordinate[0] + 1][startNodeIndexCordinate[1] + 4]
             val targetNode: Node = grid[targetNodeIndexCordinate[0]][targetNodeIndexCordinate[1]]
 
 
