@@ -1,13 +1,14 @@
 import java.util.HashSet
 import java.util.PriorityQueue
+import kotlin.math.min
 
-class AStar (
-    private val grid : Array<Array<Node>>,
-    private val startingNodeCordinate:  Array<Int>,
+class AStar(
+    private val grid: Array<Array<Node>>,
+    private val startingNodeCordinate: Array<Int>,
     private val targetNodeCordinate: Array<Int>,
     private val NODE_SIZE: Int,
 ) {
-    private val openNode: PriorityQueue<Node> = PriorityQueue(grid[0].size * grid.size,compareBy { it.fCost })
+    private val openNode: PriorityQueue<Node> = PriorityQueue(grid[0].size * grid.size, compareBy { it.fCost })
     private val closedNode: HashSet<Node> = HashSet()
 
     fun getBestPath(): HashSet<Node> {
@@ -15,7 +16,7 @@ class AStar (
         val targetNode = grid[targetNodeCordinate[0]][targetNodeCordinate[1]]
         openNode.add(startNode)
 
-        while (!openNode.isEmpty()) {
+        while (openNode.isNotEmpty()) {
             val currentNode = openNode.remove()
             closedNode.add(currentNode)
 
@@ -24,9 +25,15 @@ class AStar (
             for (neighbour in getAdjacentNodes(currentNode)) {
                 if (!neighbour.isWalkable || closedNode.contains(neighbour)) continue
 
-                if (!openNode.contains(neighbour)) {
+                val tentativeG = currentNode.gCost + calculateDistance(currentNode, neighbour)
+
+                if (!openNode.contains(neighbour) || tentativeG < neighbour.gCost) {
+                    neighbour.parent = currentNode
                     neighbour.calculateFCost(targetNode)
-                    openNode.add(neighbour)
+
+                    if (!openNode.contains(neighbour)) {
+                        openNode.add(neighbour)
+                    }
                 }
             }
         }
@@ -34,11 +41,14 @@ class AStar (
         return closedNode
     }
 
+    private fun calculateDistance(nodeA: Node, nodeB: Node): Int {
+        return nodeA.calculateGCost(nodeB)
+    }
 
-    fun getAdjacentNodes(node: Node): List<Node> {
+    private fun getAdjacentNodes(node: Node): List<Node> {
         val adjacentNodes = mutableListOf<Node>()
         val gridX = node.x / NODE_SIZE
-        //  important to notice that NODE_SIZE is subtracted by 5 because five is the GAP used in the drawing phase, the GAP variable in AppPannel
+        //  important to notice that NODE_SIZE is subtracted by 5 because five is the GAP to cap
         val gridY = node.y / NODE_SIZE - 5
 
         val possibleCoordinates = listOf(
@@ -60,5 +70,4 @@ class AStar (
 
         return adjacentNodes
     }
-
 }

@@ -1,27 +1,32 @@
 import kotlin.math.abs
-import kotlin.math.min
+import kotlin.math.sqrt
 
 class Node(
     val x: Int,
     val y: Int,
-    val isWalkable: Boolean,
+    var isWalkable: Boolean,
     var nodeType: NodeType,
 ) {
-    var fCost = 0;
+    var parent: Node? = null
+    var gCost = 0
+    var hCost = 0
+    var fCost = 0
+
     fun calculateFCost(targetNode: Node) {
-        fCost =  calculateHCost(targetNode)
+        gCost = calculateGCost(targetNode)
+        hCost = calculateHCost(targetNode)
+        fCost = gCost + hCost
     }
 
+    fun calculateGCost(targetNode: Node): Int {
+        val dx = abs(targetNode.x - x)
+        val dy = abs(targetNode.y - y)
+        return (10 * sqrt((dx * dx + dy * dy).toDouble())).toInt()
+    }
 
     private fun calculateHCost(targetNode: Node): Int {
-        val horizontalDistance = abs(x - targetNode.x)
-        val verticalDistance = abs(y - targetNode.y)
-
-        val diagonalValue = 14
-        val verticalValue = 10
-
-        return diagonalValue * min(horizontalDistance, verticalDistance) + verticalValue * abs(horizontalDistance - verticalDistance)
+        val dx = abs(targetNode.x - x)
+        val dy = abs(targetNode.y - y)
+        return (10 * sqrt((dx * dx + dy * dy).toDouble())).toInt()
     }
-
-
 }

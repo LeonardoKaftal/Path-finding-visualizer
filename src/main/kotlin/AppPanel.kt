@@ -84,6 +84,7 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
                     else -> {
                         g.color = Color.BLACK
                         g.drawRect(node.x, node.y, NODE_SIZE, NODE_SIZE)
+                        if (!node.isWalkable) g.fillRect(node.x, node.y, NODE_SIZE, NODE_SIZE)
                     }
                 }
             }
@@ -122,9 +123,12 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
         val yMouseGridPos = (e.y - GAP) / NODE_SIZE
 
         if (xMouseGridPos < NODE_PER_ROW && yMouseGridPos < TOTAL_ROW && xMouseGridPos >= 0 && yMouseGridPos >= 0) {
+
+        // check if is not dragging onto the start or the target node
+        if ((xMouseGridPos != startNodeIndexCordinate[1] || yMouseGridPos != startNodeIndexCordinate[0]) &&
+                xMouseGridPos != targetNodeIndexCordinate[1] || yMouseGridPos != targetNodeIndexCordinate[0]) {
             when {
                 isChangingTargetNodePosition -> {
-                    if (xMouseGridPos != startNodeIndexCordinate[1] || yMouseGridPos != startNodeIndexCordinate[0]) {
                         val prevTargetNode = grid[targetNodeIndexCordinate[0]][targetNodeIndexCordinate[1]]
                         prevTargetNode.nodeType = NodeType.NODE
 
@@ -133,20 +137,21 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
 
                         grid[yMouseGridPos][xMouseGridPos].nodeType = NodeType.TARGET
                         repaint()
-                    }
                 }
                 isChangingStartNodePosition -> {
-                    if (xMouseGridPos != targetNodeIndexCordinate[1] || yMouseGridPos != targetNodeIndexCordinate[0]) {
-                        val prevStartNode = grid[startNodeIndexCordinate[0]][startNodeIndexCordinate[1]]
-                        prevStartNode.nodeType = NodeType.NODE
+                    val prevStartNode = grid[startNodeIndexCordinate[0]][startNodeIndexCordinate[1]]
+                    prevStartNode.nodeType = NodeType.NODE
 
-                        startNodeIndexCordinate[1] = xMouseGridPos
-                        startNodeIndexCordinate[0] = yMouseGridPos
+                    startNodeIndexCordinate[1] = xMouseGridPos
+                    startNodeIndexCordinate[0] = yMouseGridPos
 
-                        grid[yMouseGridPos][xMouseGridPos].nodeType = NodeType.START
-                        repaint()
-                    }
+                    grid[yMouseGridPos][xMouseGridPos].nodeType = NodeType.START
+                    repaint()
                 }
+                else -> {
+                    grid[yMouseGridPos][xMouseGridPos].isWalkable = false
+                    repaint()
+                }                }
             }
         }
     }
