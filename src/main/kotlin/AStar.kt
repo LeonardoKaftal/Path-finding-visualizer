@@ -1,6 +1,4 @@
-import java.util.HashSet
-import java.util.PriorityQueue
-import kotlin.math.min
+import kotlin.math.abs
 
 class AStar(
     private val grid: Array<Array<Node>>,
@@ -8,41 +6,66 @@ class AStar(
     private val targetNodeCordinate: Array<Int>,
     private val NODE_SIZE: Int,
 ) {
-    private val openNode: PriorityQueue<Node> = PriorityQueue(grid[0].size * grid.size, compareBy { it.fCost })
+    private val openNode:  HashSet<Node> = HashSet()
     private val closedNode: HashSet<Node> = HashSet()
 
-    fun getBestPath(): HashSet<Node> {
+    fun getBestPath(): List<Node> {
         val startNode = grid[startingNodeCordinate[0]][startingNodeCordinate[1]]
         val targetNode = grid[targetNodeCordinate[0]][targetNodeCordinate[1]]
         openNode.add(startNode)
 
         while (openNode.isNotEmpty()) {
-            val currentNode = openNode.remove()
+            var currentNode = openNode.first()
+
+            openNode.forEachIndexed {index, node ->
+                if (index > 0) {
+                    if (node.getFCost() <= currentNode.getFCost() && node.hCost < currentNode.hCost) currentNode = node
+                }
+            }
+
+            openNode.remove(currentNode)
             closedNode.add(currentNode)
 
-            if (currentNode == targetNode) break
+            if (currentNode == targetNode) {
+                return retracePath(startNode,targetNode)
+            }
 
             for (neighbour in getAdjacentNodes(currentNode)) {
                 if (!neighbour.isWalkable || closedNode.contains(neighbour)) continue
 
-                val tentativeG = currentNode.gCost + calculateDistance(currentNode, neighbour)
-
-                if (!openNode.contains(neighbour) || tentativeG < neighbour.gCost) {
+                val newMovementCostToNeighbour = currentNode.gCost + calculateDistance(currentNode,neighbour)
+                if (newMovementCostToNeighbour < neighbour.gCost || !openNode.contains(neighbour)) {
+                    neighbour.gCost = newMovementCostToNeighbour
+                    neighbour.hCost = calculateDistance(neighbour,targetNode)
                     neighbour.parent = currentNode
-                    neighbour.calculateFCost(targetNode)
 
-                    if (!openNode.contains(neighbour)) {
-                        openNode.add(neighbour)
-                    }
+                    if (!openNode.contains(neighbour)) openNode.add(neighbour)
                 }
             }
         }
 
-        return closedNode
+        println("Invalid path!")
+        return ArrayList()
     }
 
-    private fun calculateDistance(nodeA: Node, nodeB: Node): Int {
-        return nodeA.calculateGCost(nodeB)
+    fun calculateDistance(nodeA: Node, nodeB : Node): Int {
+        val dx = abs(nodeA.x - nodeB.x)
+        val dy = abs(nodeA.y - nodeB.y)
+
+        if (dx > dy) return 14 * dy + 10 * (dx - dy)
+        return 14 * dx + 10 * (dy - dx)
+    }
+
+    fun retracePath(startNode: Node, endNode: Node): ArrayList<Node> {
+        val path = ArrayList<Node>()
+        var currentNode = endNode
+
+        while (currentNode != startNode) {
+            path.add(currentNode)
+            currentNode = currentNode.parent!!
+        }
+        path.reverse()
+        return path
     }
 
     private fun getAdjacentNodes(node: Node): List<Node> {

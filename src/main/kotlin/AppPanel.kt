@@ -26,7 +26,7 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
     private var isChangingStartNodePosition: Boolean = false
     private var isChangingTargetNodePosition: Boolean = false
     // path to the target
-    private var closedNode: HashSet<Node>?  = null
+    private var closedNode: List<Node>?  = null
     private var isSearchingForPath = false
 
     init {
