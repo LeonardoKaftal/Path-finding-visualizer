@@ -1,3 +1,5 @@
+import javax.swing.SwingUtilities
+
 fun main(args: Array<String>) {
-   Window()
+   SwingUtilities.invokeLater { Window() }
 }

@@ -38,6 +38,7 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
             isSearchingForPath = true
             repaint()
         }
+        clearButton.addActionListener{resetGrid()}
         add(clearButton)
         add(startButton)
         generateGrid()
@@ -47,6 +48,14 @@ class AppPanel : JPanel(), ActionListener, MouseListener, MouseMotionListener {
         }
     }
 
+    private fun resetGrid() {
+        for (grid in grid) {
+            for (j in 0..<this.grid[0].size) {
+                grid[j].isWalkable = true
+            }
+        }
+        repaint()
+    }
 
 
     private fun generateGrid() {
